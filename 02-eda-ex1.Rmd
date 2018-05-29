@@ -1,0 +1,221 @@
+# EDA, exemplo 1: Alunos de Ciência de Dados na UFCG
+
+Começamos carregando os dados. Existe um assistente no Import Dataset na aba Environment do RStudio.
+
+Repare nos diferentes tipos de dados: categóricos, numéricos, lógicos e datas, principalmente. 
+
+```{r}
+alunos_tudo = read_csv(here("dados/alunos-ad1.csv"))
+
+# você pode especificar os tipos das colunas, por exemplo: 
+alunos_tudo = read_csv(here("/dados/alunos-ad1.csv"), 
+                       col_types = "ccciiiiiiicc??c")
+
+glimpse(alunos_tudo)
+```
+
+Para ver os dados no uso interativo, você pode fazer: `alunos_tudo %>% View()`, que é o mesmo que `View(alunos)`.
+
+<br>
+
+Os nomes de variável vem do typeform e não estão ajudando. Vamos renomeá-las.
+
+```{r}
+names(alunos_tudo)
+
+alunos = alunos_tudo %>% 
+  select(sexo = `Você é...`,  # select pode escolher e/ou renomear variáveis
+         repositorios = `Em quantos repositórios no github (seus ou de outras pessoas) você contribuiu nos últimos 2 anos?`, 
+         linguagens = `Em quantas linguagens de programação você sabe programar?`, 
+         altura = `Qual a sua altura em centímetros?`, 
+         tempo_para_ufcg = `Quanto tempo você demora para se deslocar de casa à UFCG? (em minutos)`, 
+         transporte = `Você geralmente vai de casa para a UFCG:`, 
+         gosta_de_forms = `O quanto você gosta de formulários online? (Obrigado por ter respondido este!)`)
+
+names(alunos)
+```
+
+## Contando frequências
+
+### Variáveis categóricas
+
+```{r}
+ggplot(alunos) + 
+  geom_bar(mapping = aes(x = sexo)) 
+
+ggplot(alunos) + 
+  geom_bar(mapping = aes(x = transporte))
+
+alunos %>% 
+  group_by(transporte) %>% 
+  summarise(quantos = n()) %>% 
+  ggplot() + 
+  geom_col(mapping = aes(x = reorder(transporte, -quantos), y = quantos)) 
+
+```
+
+### Variáveis numéricas
+
+Enumerando todos os valores possíveis:
+
+```{r}
+ggplot(data = alunos, mapping = aes(x = linguagens)) + 
+  geom_bar()
+```
+
+Por faixas de valores. Bins = faixas. Binwidth = largura da faixa.
+
+```{r}
+ggplot(alunos, mapping = aes(x = tempo_para_ufcg)) + 
+  geom_histogram(binwidth = 10, 
+                 fill = "orange2", 
+                 colour = "black") 
+
+# bins são uma parte muito importante
+
+ggplot(alunos, mapping = aes(x = tempo_para_ufcg)) + 
+  geom_freqpoly(binwidth = 10, 
+                 fill = "orange2", 
+                 colour = "black") 
+
+ggplot(alunos, mapping = aes(x = tempo_para_ufcg)) + 
+  geom_density(fill = "orange2", 
+                 colour = "black") 
+
+```
+
+Para variáveis contínuas, a função de densidade pode ser usada. `geom_freqpoly` também é mais legível quando temos muitos dados.
+
+```{r}
+alunos %>% 
+  filter(altura > 3) %>%  
+  ggplot() + 
+  geom_histogram(mapping = aes(x = altura), 
+                 breaks = seq(150, 190, 5), 
+                 fill = "lightyellow", 
+                 color = "black") 
+
+alunos %>% 
+  filter(altura > 3) %>%  
+  ggplot() + 
+  geom_freqpoly(mapping = aes(x = altura), 
+                bins = 8) 
+
+alunos %>% 
+  filter(altura > 3) %>%  
+  ggplot() + 
+  geom_density(mapping = aes(x = altura)) 
+```
+
+Mais info
+
+```{r}
+ggplot(alunos, mapping = aes(x = tempo_para_ufcg)) + 
+  geom_histogram(binwidth = 10) + 
+  geom_rug(colour = "red")
+
+
+ggplot(alunos, mapping = aes(x = tempo_para_ufcg)) + 
+  geom_freqpoly(bins = 8) + 
+  geom_rug(colour = "red", alpha = .7, size = 1)
+
+```
+
+## Uma numérica e uma categórica
+
+```{r}
+ggplot(alunos, aes(x = transporte, y = tempo_para_ufcg)) + 
+  geom_jitter(width = .1, height = 0, alpha = .6)
+```
+
+```{r}
+ggplot(alunos, aes(x = transporte, y = tempo_para_ufcg)) + 
+  geom_boxplot() +
+  geom_jitter(color = "orange", width = .1, height = 0, alpha = .6)
+```
+
+
+```{r}
+ggplot(alunos, aes(fill = transporte, x = tempo_para_ufcg)) + 
+  geom_histogram(binwidth = 10) + 
+  facet_grid(transporte ~ .)
+
+```
+
+
+```{r}
+alunos %>%
+  filter(altura > 0) %>% 
+  ggplot(mapping = aes(x = sexo, 
+                       y = altura)) +
+  # geom_boxplot() + 
+  geom_violin() + 
+  geom_jitter(width = .1,
+              height = 0,
+              alpha = 0.7) 
+
+```
+
+## Duas variáveis numéricas
+
+```{r}
+ggplot(data = alunos) +
+  geom_point(mapping = aes(x = linguagens, 
+                           y = repositorios), 
+             alpha = 0.7) 
+
+alunos %>%
+  filter(altura > 0) %>% 
+  ggplot() +
+  geom_point(mapping = aes(x = altura, 
+                           y = linguagens), 
+             alpha = 0.7) 
+
+alunos %>%
+  ggplot() +
+  geom_point(mapping = aes(x = tempo_para_ufcg, 
+                           y = repositorios), 
+             alpha = 0.7) 
+
+```
+
+Médias: 
+
+```{r}
+medias = alunos %>% 
+  filter(!is.na(transporte), !is.na(tempo_para_ufcg)) %>% 
+  group_by(transporte) %>% 
+  summarise(tempo_para_ufcg = mean(tempo_para_ufcg))
+
+ggplot(alunos, mapping = aes(x = transporte, 
+                             y = tempo_para_ufcg)) + 
+  geom_boxplot(outlier.colour = NA) + 
+  geom_point(position = position_jitter(width = .2), 
+             alpha = .7, 
+             color = "darkblue") + 
+  geom_point(data = medias, colour = "red", size = 2) 
+
+```
+
+Desvio padrão
+
+```{r}
+alunos %>% 
+  filter(!is.na(transporte), !is.na(tempo_para_ufcg)) %>% 
+  group_by(transporte) %>% 
+  summarise(desvio = sd(tempo_para_ufcg), 
+            iqr = IQR(tempo_para_ufcg))
+
+```
+
+## Uma visão geral de todas as variáveis 2 a 2 de uma vez
+
+```{r fig.width=8, fig.height=8}
+library(GGally)
+
+alunos %>% 
+  filter(complete.cases(.)) %>% 
+  filter(altura > 1) %>% 
+  select(repositorios, linguagens, altura, tempo_para_ufcg) %>% 
+  ggpairs()
+```

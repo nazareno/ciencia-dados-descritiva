@@ -1,0 +1,65 @@
+# (PART) Apêndice {-}
+
+# Um primeiro arquivo de análise {#exemplo-notebook}
+
+Primeiro você provavelmente carregará as bibliotecas que usará. Algo como: 
+
+```{r warning=FALSE}
+library(tidyverse) # carrega os pacotes ggplot2, readr, tidyr e dplyr
+# no linux pode ser que você precise instalar a libcurl4-openssl-dev
+library(knitr)
+library(here, quietly = T)
+```
+
+A seguir, você lerá arquivos:
+
+```{r read}
+# use sempre read_csv em vez de read.csv
+vendas = read_csv(here("dados/vendas_artistas_br.csv"))
+```
+
+Sempre dê uma conferida nos dados lidos. Por exemplo como na Tabela~\@ref(tab:tabela-exemplo).
+
+```{r tabela-exemplo, tidy=FALSE}
+vendas %>% 
+    head(20) %>% 
+    kable(
+        caption = 'Uma tabela!',
+        booktabs = TRUE
+    )
+```
+
+O próximo passo é visualizar os dados
+
+```{r fig.cap='Uma primeira figura!', out.width='80%', fig.asp=1.75, fig.align='center'}
+ggplot(vendas, aes(x = Artista, # Artista é o nome de uma variável dentro de vendas
+                   y = `Vendas estimadas (milhões)` # Crase serve de escape para símbolos e espaços
+)) + 
+    geom_point() +
+    coord_flip() # Troca o x por y depois de plotar
+# documentação do ggplot2: http://ggplot2.tidyverse.org/index.html
+```
+
+Daí em diante, entramos no ciclo _visualizar_ - _transformar_ - _modelar_ - _visualizar_ - ...
+
+Para transformar, tem 5 verbos principais que você usará, todos do `dplyr`: 
+    * `select`  - escolhe variáveis (colunas)
+    * `filtrar` - escolhe observações (linhas)
+    * `mutate` - cria/altera variáveis
+    * `summarise` - calcula algo (média, max, min, ...) a partir de várias linhas
+    * `group_by` - tal qual o do SQL
+
+`arrange` é um sexto verbo que pode ser útil. ordena linhas.
+
+
+```{r}
+vendas_com_mpb = vendas %>% 
+  filter(`Vendas estimadas (milhões)` < 100, # filter faz um AND nas condições
+         `Vendas estimadas (milhões)` > 20) %>% 
+  mutate(eh_mpb = grepl("MPB", `Gênero(s)`))  # grepl retorna TRUE para as linhas do segundo argumento que contém o 1o
+
+ggplot(vendas_com_mpb, aes(x = eh_mpb, 
+                           y = `Vendas estimadas (milhões)`)) + 
+  geom_point(color = "darkorange")
+```
+

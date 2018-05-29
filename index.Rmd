@@ -1,0 +1,35 @@
+--- 
+title: "Ciência de Dados Descritiva"
+author: "Nazareno Andrade"
+date: "`r Sys.Date()`"
+bibliography:
+- book.bib
+- packages.bib
+description: Livro-código sobre Ciência de Dados, parte descritiva, incluindo seu
+  uso para pesquisa.
+documentclass: book
+link-citations: yes
+site: bookdown::bookdown_site
+biblio-style: apalike
+---
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lubridate)
+library(here)
+theme_set(theme_bw())
+```
+
+# Visão
+
+Ciência de Dados, focando em modelos descritivos; por enquanto os preditivos ficam para depois. Os públicos são: interessados em aplicar ciência de dados em projetos de análise e de desenvolvimento em qualquer domínio, e pesquisadores que queiram usar ciência de dados na sua pesquisa quantitativa. A perspectiva é de usar pensamento computacional e uma visão computacional sempre que possível. 
+
+Criado em R com o pacote **bookdown**.
+
+
+```{r include=FALSE}
+# automatically create a bib database for R packages
+knitr::write_bib(c(
+  .packages(), 'bookdown', 'knitr', 'rmarkdown'
+), 'packages.bib')
+```

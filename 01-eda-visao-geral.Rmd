@@ -1,0 +1,4 @@
+# Análise Descritiva e Exploratória: EDA 
+
+Os capítulos dessa parte do livro ilustram pontos sobre análise descritiva e exploratória. 
+Explicação dos capítulos. 

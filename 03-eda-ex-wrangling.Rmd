@@ -1,0 +1,247 @@
+# EDA, exemplo 2: mais wrangling
+
+TODO: Explicar origem dos dados. 
+
+## Ler, limpar.
+
+TODO: Mover essas dicas para o FAQ.
+
+Dica: problemas no encoding? Geralmente acontece no windows. Mude o encoding usado pelo RStudio em Tools > Saving. Outra dica é usar readr::read_csv2.
+
+Aproveite e configure o RStudio para nunca salvar os dados da seção em um .Rdata. 
+
+```{r}
+gastos = read_csv(here("dados/gastos-ceap-2016.csv.bz2"), 
+                  col_types = "cicdcccdccc?iicccciciidcciccd") # esse formato para especificar tipos é explicado em ?read_csv
+
+gastos_tudo = gastos %>% 
+  mutate(txNomeParlamentar = str_to_title(txNomeParlamentar), 
+         txtDescricao = str_to_title(txtDescricao)) 
+
+gastos_pb = gastos %>% 
+  filter(sgUF == "PB") %>% 
+  mutate(txNomeParlamentar = str_to_title(txNomeParlamentar), 
+         txtDescricao = str_to_title(txtDescricao)) %>% 
+  select(-txtCNPJCPF)
+```
+
+
+```{r}
+num_pt_br = function(l){
+  # existem funções para formatar com , sendo milhar e . sendo decimal (scales::comma)
+  # mas em pt_br é o contrário. essa função serve para isso
+  format(l, big.mark = ".", scientific = FALSE, trim = TRUE, decimal.mark = ",")
+} 
+```
+
+## Quantos deputados e notas temos por estado? 
+
+```{r}
+contagens = gastos_tudo %>% 
+    group_by(sgUF, txNomeParlamentar) %>% 
+    summarise(reembolsos = n()) %>% # resulta um df c 1 linha por dep., agrupado por UF
+    summarise(deputados = n(), 
+              reembolsos = sum(reembolsos))
+
+glimpse(contagens)
+
+contagens %>% 
+    ggplot(mapping = aes(x = reorder(sgUF, deputados), y = deputados)) + 
+    geom_point() + 
+    scale_y_continuous(limits = c(0, NA))
+```
+
+Ops. Deputados no estado `NA`? (NA = _Not a Number_)
+
+```{r}
+gastos_tudo %>% 
+    filter(is.na(sgUF)) %>% 
+    select(txNomeParlamentar, sgUF, sgPartido) %>% 
+    sample_n(10)
+```
+
+Donde aprendemos que as lideranças e partidos também têm cotas para exercício da atividade parlamentar. Como estamos interessados apenas em deputados, vamos daqui em diante filtrar fora esses gastos. 
+
+```{r}
+gastos_tudo = 
+    gastos_tudo %>% 
+    filter(!is.na(sgUF))
+```
+
+
+## Gasto total por estado
+
+```{r}
+por_estado = gastos %>% 
+    filter(!is.na(sgUF)) %>% 
+    group_by(sgUF) %>% 
+    summarise(total = sum(vlrLiquido)) 
+
+por_estado %>% 
+    filter(!is.na(sgUF)) %>% # Já que estamos interessados apenas nos deputados.
+    ggplot(aes(x = reorder(sgUF, total), y = total)) + 
+    geom_point() + 
+    scale_y_continuous(labels = num_pt_br) + 
+    labs(x = "Estado", y = "Total gasto pelos deputados (R$)") + 
+    coord_flip()
+```
+
+```{r}
+por_estado %>%
+  ggplot(aes(x = reorder(sgUF, total), y = total)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+```
+
+
+### Gasto per capita por estado
+
+*Cuidado: aqui estamos colocando todos os deputados que aparecem, independente de quanto tempo eles passaram na câmara*.
+
+```{r}
+per_capita = gastos %>% 
+  group_by(sgUF, txNomeParlamentar) %>% 
+  summarise(total_deputado = sum(vlrLiquido)) %>%       # Pulo do gato: summarise remove um nível do group_by
+  summarise(per_capita = sum(total_deputado) / n()) %>% # por isso aqui estamos agrupados por UF apenas
+  filter(!is.na(sgUF)) # Já que estamos interessados apenas nos deputados.
+
+per_capita %>% 
+  ggplot(aes(x = reorder(sgUF, per_capita), y = per_capita)) + 
+  geom_point() + 
+  scale_y_continuous(labels = num_pt_br) + 
+  labs(x = "Estado", y = "Gasto por deputado (R$)") + 
+  coord_flip()
+```
+
+### Gasto per capita por mês
+
+Considerando apenas os meses em que o deputado teve algum gasto, diminuímos o erro no cálculo per capita
+
+```{r}
+per_capita = gastos %>% 
+  mutate(mes_ano = paste(numMes, numAno, sep = "-")) %>% 
+  group_by(sgUF, txNomeParlamentar, mes_ano) %>% 
+  summarise(por_mes = sum(vlrLiquido)) %>%
+  summarise(por_deputado = sum(por_mes) / n()) %>%
+  summarise(per_capita_mes = sum(por_deputado) / n())
+
+per_capita %>% 
+  ggplot(aes(x = reorder(sgUF, per_capita_mes), y = per_capita_mes)) + 
+  geom_point() + 
+  scale_y_continuous(labels = num_pt_br) + 
+  labs(x = "Estado", y = "Gasto por deputado por mês (R$)") + 
+  coord_flip()
+```
+
+## Gastos só na PB
+
+```{r}
+gastos_pb %>% 
+  select(txNomeParlamentar) %>% 
+  distinct()
+
+gastos_pb %>% 
+  group_by(txNomeParlamentar) %>% 
+  summarise(recibos = n(), 
+            total = sum(vlrLiquido)) %>% 
+  arrange(-recibos)
+```
+
+## Outros exemplos
+
+```{r}
+# Exemplo com mutate + ifelse
+partidos_tipo = gastos_pb %>% 
+  group_by(sgPartido, txtDescricao) %>% 
+  summarise(total = sum(vlrLiquido), 
+            num_gastos = n(), 
+            maior_gasto = max(vlrLiquido), 
+            mediano = median(vlrLiquido)) %>% 
+  mutate(tipo_estado = if_else(total > 1e3, 
+                              "muito", 
+                              "pouco"))
+
+# barras mostrando proporções
+partidos_tipo %>% 
+  ggplot(aes(x = sgPartido, 
+             y = total, 
+             fill = txtDescricao)) + 
+  geom_bar(stat = "identity", position = "fill") + 
+  guides(fill = guide_legend(nrow = 8)) + 
+  theme(legend.position = "bottom") + 
+  coord_flip()
+
+```
+
+## Faceting
+
+```{r}
+gastos_tudo %>% 
+  filter(sgPartido %in% c("PT", "PSDB", "PMDB"), # duas condições = AND
+         txtDescricao %in% c("Manutenção De Escritório De Apoio À Atividade Parlamentar", 
+                             "Divulgação Da Atividade Parlamentar.", 
+                             "Fornecimento De Alimentação Do Parlamentar")) %>% # %in% é muito útil!
+  group_by(sgPartido, txtDescricao) %>% 
+  summarise(total = sum(vlrLiquido)) %>% 
+  ggplot(aes(y = total, 
+             x = reorder(txtDescricao, total))) + 
+  geom_bar(stat = "identity", position = "dodge") + 
+  facet_grid(sgPartido ~ .) + 
+  coord_flip()
+```
+
+## Diferentes visões da variação
+
+Um dataset relativamente pequeno. 
+
+```{r}
+alguns_gastos = gastos_tudo %>% 
+  filter(sgPartido %in% c("PT", "PSDB", "PMDB"), # duas condições = AND
+         txtDescricao %in% c("Manutenção De Escritório De Apoio À Atividade Parlamentar", 
+                             "Divulgação Da Atividade Parlamentar.", 
+                             "Fornecimento De Alimentação Do Parlamentar")) %>% # %in% é muito útil!
+  group_by(sgPartido, txNomeParlamentar, txtDescricao) %>% 
+  summarise(total = sum(vlrLiquido)) 
+```
+
+```{r}
+alguns_gastos %>% 
+  ggplot(aes(x = "Todos", y = total)) + 
+  geom_point(position = position_jitter(width = .1), alpha = .2) #+ scale_y_log10()
+
+alguns_gastos %>% 
+  ggplot(aes(x = "Todos", y = total)) + 
+  geom_boxplot(width = .1) # + scale_y_log10()
+
+alguns_gastos %>% 
+  ggplot(aes(x = total)) + 
+  #geom_histogram() + scale_x_log10()
+  geom_density() + scale_x_log10()
+```
+
+```{r}
+alguns_gastos %>% 
+  ggplot(aes(x = txtDescricao, y = total)) + 
+  geom_point(position = position_jitter(width = .1), alpha = .2) + 
+  coord_flip()#+ scale_y_log10() 
+
+alguns_gastos %>% 
+  ggplot(aes(x = txtDescricao, y = total)) + 
+  geom_boxplot(width = .2) +  # + scale_y_log10() 
+  coord_flip()
+
+alguns_gastos %>% 
+  ggplot(aes(x = total, colour = txtDescricao)) + 
+  #geom_histogram() + scale_x_log10()
+  geom_density() + scale_x_log10()
+
+alguns_gastos %>% 
+  ggplot(aes(x = total, fill = substr(txtDescricao, 1, 12))) + 
+  geom_histogram(bins = 20) +
+  #geom_density() + 
+  geom_rug() + 
+  scale_x_log10() + 
+  facet_grid(txtDescricao ~ .)
+
+```
+
