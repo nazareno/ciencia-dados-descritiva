@@ -1,4 +1,11 @@
 # Análise Descritiva e Exploratória: EDA 
 
 Os capítulos dessa parte do livro ilustram pontos sobre análise descritiva e exploratória. 
-Explicação dos capítulos. 
+
+_Explicação dos capítulos._ 
+
+Exercícios: 
+
+https://github.com/cienciadedados-ufcg/eda-pares-romanticos 
+
+https://github.com/cienciadedados-ufcg/eda-series
