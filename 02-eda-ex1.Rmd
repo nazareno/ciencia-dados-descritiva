@@ -1,4 +1,4 @@
-# EDA, exemplo 1: Alunos de Ciência de Dados na UFCG
+# EDA, exemplo 1: Alunos de Ciência de Dados na UFCG {#eda-exemplo-simples}
 
 Começamos carregando os dados. Existe um assistente no Import Dataset na aba Environment do RStudio.
 

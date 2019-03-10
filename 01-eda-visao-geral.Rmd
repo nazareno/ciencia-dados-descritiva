@@ -1,6 +1,14 @@
-# Análise Descritiva e Exploratória: EDA 
+# (PART) EDA: Análise Descritiva e Exploratória {-}
 
-Os capítulos dessa parte do livro ilustram pontos sobre análise descritiva e exploratória. 
+# Por que e para que
+
+A análise descritiva ou exploratória é a ferramenta básica da ciência de dados. Se há algo que você deve fazer em 100% dos seus projetos, isso é explorar e descrever os dados antes de usá-los para tirar qualquer conclusão. Esse processo serve para que você tenha uma visão geral das variáveis e valores envolvidos. Com isso, você se certifica que os dados se comportam como você crê, e/ou aprende sobre eles. 
+
+Em várias outras situações, estamos interessados em algum conjunto de dados por causa do que ele representa, mas não temos perguntas claras. Por exemplo, podemos ter obtido dados sobre como os parlamentares da Câmara dos Deputados usam sua verba de gabinete, e queremos procurar qualquer coisa que acharmos de interessante. Nessas situações, nosso objetivo é explorar os dados, e isso significa aplicar Análise Descritiva e Exploratória (EDA) nos dados. 
+
+Os capítulos nessa parte do livro discutem temas relacionados à EDA. 
+
+
 
 _Explicação dos capítulos._ 
 
