@@ -1,0 +1,5 @@
+# Exercícios com EDA {#eda-exercicio}
+
+https://github.com/cienciadedados-ufcg/eda-pares-romanticos 
+
+https://github.com/cienciadedados-ufcg/eda-series

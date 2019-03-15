@@ -1,19 +1,19 @@
 # (PART) EDA: Análise Descritiva e Exploratória {-}
 
-# Por que e para que
+# EDA para quê
 
-A análise descritiva ou exploratória é a ferramenta básica da ciência de dados. Se há algo que você deve fazer em 100% dos seus projetos, isso é explorar e descrever os dados antes de usá-los para tirar qualquer conclusão. Esse processo serve para que você tenha uma visão geral das variáveis e valores envolvidos. Com isso, você se certifica que os dados se comportam como você crê, e/ou aprende sobre eles. 
+A análise descritiva ou exploratória é a ferramenta básica da ciência de dados. Se há algo que você deve fazer em 100% dos seus projetos, isso é explorar e descrever os dados para conhecê-los bem antes de usá-los para tirar qualquer conclusão. Fazendo uma visão geral dos dados, você se certifica que os dados se comportam como você crê, e/ou aprende sobre eles. Sem isso, enormes chances de você não perceber valores inesperados, impossíveis ou faltantes, e não perceber o efeito deles nas suas conclusões. 
 
-Em várias outras situações, estamos interessados em algum conjunto de dados por causa do que ele representa, mas não temos perguntas claras. Por exemplo, podemos ter obtido dados sobre como os parlamentares da Câmara dos Deputados usam sua verba de gabinete, e queremos procurar qualquer coisa que acharmos de interessante. Nessas situações, nosso objetivo é explorar os dados, e isso significa aplicar Análise Descritiva e Exploratória (EDA) nos dados. 
+Em várias outras situações, estamos interessados em algum conjunto de dados por causa do que ele representa, _mas não temos perguntas claras_. Por exemplo, podemos ter obtido dados sobre como os parlamentares da Câmara dos Deputados usam sua verba de gabinete, e queremos procurar qualquer coisa que acharmos de interessante. Nessas situações, nosso objetivo é _explorar_ os dados, e isso significa aplicar Análise Descritiva e Exploratória (EDA) nos dados. 
 
-Os capítulos nessa parte do livro discutem temas relacionados à EDA. 
+Essa parte do livro discute temas relacionados à EDA com os seguinte capítulos: 
 
+* [Um exemplo simples](#ex-eda-simples) com um conjunto de dados pequeno e de poucas variáveis.
+* (To do) Mais detalhes sobre manipulação
+* (To do) Uma discussão sobre medidas de centralidade e dispersão
+* [Um exemplo mais complexo](#eda-exemplo-maior) com um conjunto de dados maior e mais com mais dificuldades da vida real, vindo dos dados abertos da Câmara dos Deputados. 
+* Uma discussão sobre correlação
+* O aviso do datassauro
+* Dicas sobre boxplots
+* [Exercícios](#eda-exercicio) para você se divertir com o que discutimos
 
-
-_Explicação dos capítulos._ 
-
-Exercícios: 
-
-https://github.com/cienciadedados-ufcg/eda-pares-romanticos 
-
-https://github.com/cienciadedados-ufcg/eda-series

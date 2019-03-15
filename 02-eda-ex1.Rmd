@@ -1,8 +1,13 @@
-# EDA, exemplo 1: Alunos de Ciência de Dados na UFCG {#eda-exemplo-simples}
+# Exemplo de EDA 1: Alunos de CDD {#eda1}
 
-Começamos carregando os dados. Existe um assistente no Import Dataset na aba Environment do RStudio.
+Os dados para esse capítulo foram obtidos por Nazareno usando um formulário online de typeform.com e enviado a alunos que cursaram Ciência de Dados Descritiva na [Computação@UFCG](www.computacao.ufcg.edu.br) em diferentes anos. O objetivo da coleta era produzir dados que interessassem aos alunos conhecer dos colegas, sobre os quais seja fácil ter uma expectativa de como funcionam, e ilustrar diferentes análises possíveis. O Typeform permite que eu exporte os dados em um csv, e ele é o ponto de partida.
 
-Repare nos diferentes tipos de dados: categóricos, numéricos, lógicos e datas, principalmente. 
+Começamos carregando os dados. Existe um assistente em _Import Dataset_ na aba _Environment_ do RStudio, mas aqui faremos tudo programaticamente.
+
+Dica importante: existe a função `readr::read_csv` (ou seja, `read_csv` no pacote `readr`) e existe a função `read.csv` no R base. Usaremos sempre `readr::read_csv`, e eu sugiro que você faça o mesmo em seus projetos. 
+
+Vamos aos dados, então.
+
 
 ```{r}
 alunos_tudo = read_csv(here("dados/alunos-ad1.csv"))
@@ -13,6 +18,8 @@ alunos_tudo = read_csv(here("/dados/alunos-ad1.csv"),
 
 glimpse(alunos_tudo)
 ```
+
+Repare nos diferentes tipos de dados: categóricos, numéricos, lógicos e datas, principalmente. 
 
 Para ver os dados no uso interativo, você pode fazer: `alunos_tudo %>% View()`, que é o mesmo que `View(alunos)`.
 
@@ -208,14 +215,4 @@ alunos %>%
 
 ```
 
-## Uma visão geral de todas as variáveis 2 a 2 de uma vez
-
-```{r fig.width=8, fig.height=8}
-library(GGally)
-
-alunos %>% 
-  filter(complete.cases(.)) %>% 
-  filter(altura > 1) %>% 
-  select(repositorios, linguagens, altura, tempo_para_ufcg) %>% 
-  ggpairs()
-```
+to do: ggally e skimmr

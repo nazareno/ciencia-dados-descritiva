@@ -44,7 +44,7 @@ Daí em diante, entramos no ciclo _visualizar_ - _transformar_ - _modelar_ - _vi
 
 Para transformar, tem 5 verbos principais que você usará, todos do `dplyr`: 
     * `select`  - escolhe variáveis (colunas)
-    * `filtrar` - escolhe observações (linhas)
+    * `filter` - escolhe itens/dados (linhas)
     * `mutate` - cria/altera variáveis
     * `summarise` - calcula algo (média, max, min, ...) a partir de várias linhas
     * `group_by` - tal qual o do SQL
